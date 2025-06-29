@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Dev Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #quiz-container {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .option {
+      background: #f5f5f5;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .option:hover {
+      background-color: #e0e0e0;
+      transform: translateX(5px);
+    }
+
+    .correct {
+      background-color: #d4edda;
+      border-color: #28a745;
+      color: #155724;
+    }
+
+    .incorrect {
+      background-color: #f8d7da;
+      border-color: #dc3545;
+      color: #721c24;
+    }
+
+    #next-btn {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      transition: background 0.3s ease;
+    }
+
+    #next-btn:hover {
+      background-color: #0056b3;
+    }
+
+    #score-container {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 1.3rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <h2 id="question">Loading question...</h2>
+    <div id="options"></div>
+    <button id="next-btn">Next Question</button>
+    <div id="score-container" style="display:none;"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What does HTML stand for?",
+        options: ["Hyper Text Markup Language", "HighText Machine Language", "Hyper Tool Multi Language", "Hyperlink and Text Markup Language"],
+        answer: "Hyper Text Markup Language"
+      },
+      {
+        question: "Which tag is used to create a hyperlink in HTML?",
+        options: ["<link>", "<a>", "<href>", "<url>"],
+        answer: "<a>"
+      },
+      {
+        question: "What does CSS stand for?",
+        options: ["Creative Style System", "Cascading Style Sheets", "Computer Styled Sections", "Colorful Style Sheets"],
+        answer: "Cascading Style Sheets"
+      },
+      {
+        question: "Which HTML tag is used to define an internal style sheet?",
+        options: ["<style>", "<css>", "<script>", "<link>"],
+        answer: "<style>"
+      },
+      {
+        question: "Which CSS property is used to change text color?",
+        options: ["font-color", "text-color", "color", "text-style"],
+        answer: "color"
+      },
+      {
+        question: "Which JavaScript method adds an element to the end of an array?",
+        options: [".push()", ".pop()", ".shift()", ".unshift()"],
+        answer: ".push()"
+      },
+      {
+        question: "How do you write a comment in JavaScript?",
+        options: ["<!-- comment -->", "// comment", "** comment **", "# comment"],
+        answer: "// comment"
+      },
+      {
+        question: "What does DOM stand for?",
+        options: ["Document Object Model", "Data Object Method", "Digital Output Mode", "Desktop Object Method"],
+        answer: "Document Object Model"
+      },
+      {
+        question: "Which HTML tag is used to display a picture?",
+        options: ["<img>", "<picture>", "<src>", "<image>"],
+        answer: "<img>"
+      },
+      {
+        question: "Which JavaScript keyword declares a constant?",
+        options: ["var", "let", "const", "define"],
+        answer: "const"
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+    const scoreContainer = document.getElementById("score-container");
+
+    function showQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+      questionEl.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+      optionsEl.innerHTML = "";
+
+      currentQuestion.options.forEach(option => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.textContent = option;
+        btn.onclick = () => selectAnswer(btn, currentQuestion.answer);
+        optionsEl.appendChild(btn);
+      });
+
+      nextBtn.style.display = "none";
+    }
+
+    function selectAnswer(selectedBtn, correctAnswer) {
+      const allOptions = document.querySelectorAll(".option");
+      allOptions.forEach(btn => {
+        btn.style.pointerEvents = "none";
+        if (btn.textContent === correctAnswer) {
+          btn.classList.add("correct");
+        }
+        if (btn.textContent === selectedBtn.textContent && btn.textContent !== correctAnswer) {
+          btn.classList.add("incorrect");
+        }
+      });
+
+      if (selectedBtn.textContent === correctAnswer) {
+        score++;
+      }
+
+      nextBtn.style.display = "inline-block";
+    }
+
+    nextBtn.onclick = () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    };
+
+    function showScore() {
+      questionEl.style.display = "none";
+      optionsEl.style.display = "none";
+      nextBtn.style.display = "none";
+      scoreContainer.style.display = "block";
+      scoreContainer.innerHTML = `<h2>You scored ${score} out of ${questions.length} 🎉</h2>`;
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
